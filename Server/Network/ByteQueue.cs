@@ -4,24 +4,24 @@ using System;
 
 namespace Server.Network
 {
-	public class ByteQueue
-	{
-		private int m_Head;
-		private int m_Tail;
-		private int m_Size;
+    public class ByteQueue
+    {
+        private int m_Head;
+        private int m_Tail;
+        private int m_Size;
 
-		private byte[] m_Buffer;
+        private byte[] m_Buffer;
 
-		public int Length { get { return m_Size; } }
+        public int Length { get { return m_Size; } }
 
         public bool IsEmpty { get { return m_Size == 0; } }
 
-		public ByteQueue()
-		{
-			m_Buffer = new byte[2048];
-		}
+        public ByteQueue()
+        {
+            m_Buffer = new byte[2048];
+        }
 
-		public void Clear()
+        public void Clear()
         {
             lock (this)
             {
@@ -29,9 +29,9 @@ namespace Server.Network
                 m_Tail = 0;
                 m_Size = 0;
             }
-		}
+        }
 
-		private void SetCapacity(int capacity)
+        private void SetCapacity(int capacity)
         {
             lock (this)
             {
@@ -54,9 +54,9 @@ namespace Server.Network
                 m_Tail = m_Size;
                 m_Buffer = newBuffer;
             }
-		}
+        }
 
-		public byte GetPacketID()
+        public byte GetPacketID()
         {
             lock (this)
             {
@@ -67,9 +67,9 @@ namespace Server.Network
 
                 return 0xFF;
             }
-		}
+        }
 
-		public int GetPacketLength()
+        public int GetPacketLength()
         {
             lock (this)
             {
@@ -80,9 +80,9 @@ namespace Server.Network
 
                 return 0;
             }
-		}
+        }
 
-		public int Dequeue(byte[] buffer, int offset, int size)
+        public int Dequeue(byte[] buffer, int offset, int size)
         {
             lock (this)
             {
@@ -129,9 +129,9 @@ namespace Server.Network
 
                 return size;
             }
-		}
+        }
 
-		public void Enqueue(byte[] buffer, int offset, int size)
+        public void Enqueue(byte[] buffer, int offset, int size)
         {
             lock (this)
             {
@@ -162,6 +162,6 @@ namespace Server.Network
                 m_Tail = (m_Tail + size) % m_Buffer.Length;
                 m_Size += size;
             }
-		}
-	}
+        }
+    }
 }

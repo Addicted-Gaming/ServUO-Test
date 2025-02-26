@@ -80,8 +80,8 @@ namespace Server.Network
         }
 
         private volatile AsyncState m_AsyncState;
-        
-		private readonly object m_AsyncLock = new object();
+
+        private readonly object m_AsyncLock = new object();
 
         public IPacketEncoder PacketEncoder { get; set; }
         public IPacketEncryptor PacketEncryptor { get; set; }
@@ -729,15 +729,15 @@ namespace Server.Network
             }
 
             try
-			{
-				lock (m_AsyncLock)
-	            {
-	                if ((m_AsyncState & (AsyncState.Pending | AsyncState.Paused)) == 0)
-	                {
-	                    InternalBeginReceive();
-	                }
-	            }
-			}
+            {
+                lock (m_AsyncLock)
+                {
+                    if ((m_AsyncState & (AsyncState.Pending | AsyncState.Paused)) == 0)
+                    {
+                        InternalBeginReceive();
+                    }
+                }
+            }
             catch (Exception ex)
             {
                 TraceException(ex);
@@ -781,38 +781,38 @@ namespace Server.Network
                 {
                     m_NextCheckActivity = Core.TickCount + 90000;
 
-					byte[] buffer;
+                    byte[] buffer;
 
-					lock (m_AsyncLock)
-					{
-						buffer = m_RecvBuffer;
-					}
+                    lock (m_AsyncLock)
+                    {
+                        buffer = m_RecvBuffer;
+                    }
 
                     PacketEncryptor?.DecryptIncomingPacket(this, ref buffer, ref byteCount);
                     PacketEncoder?.DecodeIncomingPacket(this, ref buffer, ref byteCount);
-                    
+
                     m_RecvQueue.Enqueue(buffer, 0, byteCount);
 
                     MessagePump.OnReceive(this);
 
-					lock (m_AsyncLock)
-					{
-	                    m_AsyncState &= ~AsyncState.Pending;
-	
-	                    if ((m_AsyncState & AsyncState.Paused) == 0)
-	                    {
-	                        try
-	                        {
-	                            InternalBeginReceive();
-	                        }
-	                        catch (Exception ex)
-	                        {
-	                            TraceException(ex);
-	                            Dispose(false);
-	                        }
-	                    }
-	                }
-	            }
+                    lock (m_AsyncLock)
+                    {
+                        m_AsyncState &= ~AsyncState.Pending;
+
+                        if ((m_AsyncState & AsyncState.Paused) == 0)
+                        {
+                            try
+                            {
+                                InternalBeginReceive();
+                            }
+                            catch (Exception ex)
+                            {
+                                TraceException(ex);
+                                Dispose(false);
+                            }
+                        }
+                    }
+                }
                 else
                 {
                     Dispose(false);
@@ -827,7 +827,7 @@ namespace Server.Network
         private void OnSend(Task<int> task)
         {
             try
-            {            	
+            {
                 if (task.IsFaulted)
                 {
                     throw task.Exception;
@@ -854,7 +854,7 @@ namespace Server.Network
             }
             finally
             {
-            	_Sending = false;
+                _Sending = false;
             }
         }
 
@@ -864,10 +864,10 @@ namespace Server.Network
 
             foreach (var ns in m_Instances.Keys)
             {
-				lock (ns.m_AsyncLock)
-				{
-					ns.m_AsyncState |= AsyncState.Paused;
-				}
+                lock (ns.m_AsyncLock)
+                {
+                    ns.m_AsyncState |= AsyncState.Paused;
+                }
             }
         }
 
@@ -882,25 +882,25 @@ namespace Server.Network
                     continue;
                 }
 
-				lock (ns.m_AsyncLock)
-				{
-	                ns.m_AsyncState &= ~AsyncState.Paused;
-	
-	                try
-	                {
-	                    if ((ns.m_AsyncState & AsyncState.Pending) == 0)
-	                    {
-	                        ns.InternalBeginReceive();
-	                    }
-	                }
-	                catch (Exception ex)
-	                {
-	                    TraceException(ex);
-	                    ns.Dispose(false);
-	                }
-	            }
-	        }
-		}
+                lock (ns.m_AsyncLock)
+                {
+                    ns.m_AsyncState &= ~AsyncState.Paused;
+
+                    try
+                    {
+                        if ((ns.m_AsyncState & AsyncState.Pending) == 0)
+                        {
+                            ns.InternalBeginReceive();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        TraceException(ex);
+                        ns.Dispose(false);
+                    }
+                }
+            }
+        }
 
         private volatile bool _Sending;
 
@@ -1054,7 +1054,7 @@ namespace Server.Network
             {
                 TraceException(ex);
             }
-            
+
             var rbuffer = Interlocked.Exchange(ref m_RecvBuffer, null);
 
             if (rbuffer != null)
