@@ -37,14 +37,13 @@ namespace Server.Network
     [PropertyObject]
     public class NetState : IComparable<NetState>
     {
-        public static bool BufferStaticPackets = false;
-
         public static event NetStateCreatedCallback CreatedCallback;
 
         private readonly IPAddress m_Address;
-        private ByteQueue m_Buffer;
-        private byte[] m_RecvBuffer;
-        private readonly SendQueue m_SendQueue;
+
+        private ByteQueue m_RecvQueue, m_SendQueue;
+        private byte[] m_RecvBuffer, m_SendBuffer;
+
         private bool m_Running;
 
         private List<Gump> m_Gumps;
@@ -598,16 +597,16 @@ namespace Server.Network
 
             m_InitialData = state.Seed;
 
-            m_Buffer = new ByteQueue();
+            m_RecvQueue = new ByteQueue();
+            m_SendQueue = new ByteQueue();
 
             m_RecvBuffer = m_ReceiveBufferPool.AcquireBuffer();
+            m_SendBuffer = m_SendBufferPool.AcquireBuffer();
 
             m_Gumps = new List<Gump>();
             m_HuePickers = new List<HuePicker>();
             m_Menus = new List<IMenu>();
             m_Trades = new List<SecureTrade>();
-
-            m_SendQueue = new SendQueue();
 
             m_NextCheckActivity = Core.TickCount + 30000;
 
@@ -634,10 +633,6 @@ namespace Server.Network
                 CreatedCallback(this);
             }
         }
-
-        private volatile bool _Sending;
-
-		private readonly object _SendLock = new object();
 
         public virtual void Send(Packet p)
         {
@@ -673,71 +668,23 @@ namespace Server.Network
 
                     try
                     {
-                        var buffered = false;
-
                         if (PacketEncoder != null || PacketEncryptor != null)
                         {
                             var packetBuffer = buffer;
                             var packetLength = length;
 
-                            if (BufferStaticPackets && p.State.HasFlag(PacketState.Acquired))
-                            {
-                                if (packetLength <= SendBufferSize)
-                                {
-                                    packetBuffer = m_SendBufferPool.AcquireBuffer();
-                                }
-                                else
-                                {
-                                    packetBuffer = new byte[packetLength];
-                                }
-
-                                System.Buffer.BlockCopy(buffer, 0, packetBuffer, 0, packetLength);
-                            }
-
                             PacketEncoder?.EncodeOutgoingPacket(this, ref packetBuffer, ref packetLength);
                             PacketEncryptor?.EncryptOutgoingPacket(this, ref packetBuffer, ref packetLength);
-
-                            buffered = buffer != packetBuffer && packetBuffer.Length == SendBufferSize;
 
                             buffer = packetBuffer;
                             length = packetLength;
                         }
 
-                        try
+                        if (m_SendQueue.Length + length <= 0x200000)
                         {
-                            lock (_SendLock)
-                            {
-                                SendQueue.Gram gram;
-
-                                lock (m_SendQueue)
-                                {
-                                    gram = m_SendQueue.Enqueue(buffer, length);
-                                }
-
-                                if (buffered && m_SendBufferPool.Count < SendBufferCapacity)
-                                {
-                                    m_SendBufferPool.ReleaseBuffer(buffer);
-                                }
-
-                                if (gram != null && !_Sending)
-                                {
-                                    _Sending = true;
-
-                                    try
-                                    {
-                                        var segment = new ArraySegment<byte>(gram.Buffer, 0, gram.Length);
-
-                                        _ = Socket.SendAsync(segment, SocketFlags.None).ContinueWith(OnSend);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        TraceException(ex);
-                                        Dispose(false);
-                                    }
-                                }
-                            }
+                            m_SendQueue.Enqueue(buffer, 0, length);
                         }
-                        catch (CapacityExceededException)
+                        else
                         {
                             Utility.PushColor(ConsoleColor.Red);
                             Console.WriteLine("Client: {0}: Too much data pending, disconnecting...", this);
@@ -804,23 +751,19 @@ namespace Server.Network
         {
             m_AsyncState |= AsyncState.Pending;
 
-            if (m_InitialData != null)
+            _ = Task.Run(() =>
             {
-                _ = Task.Factory.StartNew(() =>
+                if (m_InitialData != null)
                 {
                     var data = Interlocked.Exchange(ref m_InitialData, null);
 
                     System.Buffer.BlockCopy(data, 0, m_RecvBuffer, 0, data.Length);
 
                     return data.Length;
-                }).ContinueWith(OnReceive);
-            }
-            else
-            {
-                var segment = new ArraySegment<byte>(m_RecvBuffer, 0, m_RecvBuffer.Length);
+                }
 
-                _ = Socket.ReceiveAsync(segment, SocketFlags.None).ContinueWith(OnReceive);
-            }
+                return Socket.Receive(m_RecvBuffer, 0, m_RecvBuffer.Length, SocketFlags.None);
+            }).ContinueWith(OnReceive);
         }
 
         private void OnReceive(Task<int> task)
@@ -847,11 +790,8 @@ namespace Server.Network
 
                     PacketEncryptor?.DecryptIncomingPacket(this, ref buffer, ref byteCount);
                     PacketEncoder?.DecodeIncomingPacket(this, ref buffer, ref byteCount);
-
-                    lock (m_Buffer)
-                    {
-                        m_Buffer.Enqueue(buffer, 0, byteCount);
-                    }
+                    
+                    m_RecvQueue.Enqueue(buffer, 0, byteCount);
 
                     MessagePump.OnReceive(this);
 
@@ -887,7 +827,7 @@ namespace Server.Network
         private void OnSend(Task<int> task)
         {
             try
-            {
+            {            	
                 if (task.IsFaulted)
                 {
                     throw task.Exception;
@@ -907,44 +847,14 @@ namespace Server.Network
                 {
                     Thread.Sleep(m_CoalesceSleep);
                 }
-
-                SendQueue.Gram gram;
-
-                lock (m_SendQueue)
-                {
-                    gram = m_SendQueue.Dequeue();
-
-                    if (gram == null && m_SendQueue.IsFlushReady)
-                    {
-                        gram = m_SendQueue.CheckFlushReady();
-                    }
-                }
-
-                if (gram != null)
-                {
-                    try
-                    {
-                        var segment = new ArraySegment<byte>(gram.Buffer, 0, gram.Length);
-
-                        _ = Socket.SendAsync(segment, SocketFlags.None).ContinueWith(OnSend);
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceException(ex);
-                        Dispose(false);
-                    }
-                }
-                else
-                {
-                    lock (_SendLock)
-                    {
-                        _Sending = false;
-                    }
-                }
             }
             catch (Exception)
             {
                 Dispose(false);
+            }
+            finally
+            {
+            	_Sending = false;
             }
         }
 
@@ -992,6 +902,8 @@ namespace Server.Network
 	        }
 		}
 
+        private volatile bool _Sending;
+
         public bool Flush()
         {
             if (Socket == null)
@@ -999,42 +911,29 @@ namespace Server.Network
                 return false;
             }
 
-            lock (_SendLock)
+            if (!m_SendQueue.IsEmpty)
             {
                 if (_Sending)
                 {
                     return false;
                 }
 
-                SendQueue.Gram gram;
+                _Sending = true;
 
-                lock (m_SendQueue)
+                try
                 {
-                    if (!m_SendQueue.IsFlushReady)
-                    {
-                        return false;
-                    }
+                    var size = Math.Min(m_SendQueue.Length, m_SendBuffer.Length);
 
-                    gram = m_SendQueue.CheckFlushReady();
+                    var length = m_SendQueue.Dequeue(m_SendBuffer, 0, size);
+
+                    _ = Task.Run(() => Socket.Send(m_SendBuffer, 0, length, SocketFlags.None)).ContinueWith(OnSend);
+
+                    return true;
                 }
-
-                if (gram != null)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        _Sending = true;
-
-                        var segment = new ArraySegment<byte>(gram.Buffer, 0, gram.Length);
-
-                        _ = Socket.SendAsync(segment, SocketFlags.None).ContinueWith(OnSend);
-
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceException(ex);
-                        Dispose(false);
-                    }
+                    TraceException(ex);
+                    Dispose(false);
                 }
             }
 
@@ -1156,11 +1055,18 @@ namespace Server.Network
                 TraceException(ex);
             }
             
-            var buffer = Interlocked.Exchange(ref m_RecvBuffer, null);
+            var rbuffer = Interlocked.Exchange(ref m_RecvBuffer, null);
 
-            if (buffer != null)
+            if (rbuffer != null)
             {
-                m_ReceiveBufferPool.ReleaseBuffer(buffer);
+                m_ReceiveBufferPool.ReleaseBuffer(rbuffer);
+            }
+
+            var sbuffer = Interlocked.Exchange(ref m_SendBuffer, null);
+
+            if (sbuffer != null)
+            {
+                m_SendBufferPool.ReleaseBuffer(sbuffer);
             }
 
             Socket = null;
@@ -1168,7 +1074,8 @@ namespace Server.Network
             PacketEncoder = null;
             PacketEncryptor = null;
 
-            m_Buffer = null;
+            m_RecvQueue = null;
+            m_SendQueue = null;
 
             m_Running = false;
 
@@ -1254,7 +1161,7 @@ namespace Server.Network
 
         public Socket Socket { get; private set; }
 
-        public ByteQueue Buffer { get { return m_Buffer; } }
+        public ByteQueue Buffer { get { return m_RecvQueue; } }
 
         public ExpansionInfo ExpansionInfo
         {
