@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scripts", "Scripts\Scripts.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "Server.Tests\Server.Tests.csproj", "{E090530C-53F8-4571-A664-09A5EB75B5FF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SandboxTesting", "SandboxTesting\SandboxTesting.csproj", "{F61D8C9E-5DD7-4F0F-BA43-37058FBA0ACA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -50,6 +52,10 @@ Global
 		{E090530C-53F8-4571-A664-09A5EB75B5FF}.Debug|x64.Build.0 = Debug|Any CPU
 		{E090530C-53F8-4571-A664-09A5EB75B5FF}.Release|x64.ActiveCfg = Release|Any CPU
 		{E090530C-53F8-4571-A664-09A5EB75B5FF}.Release|x64.Build.0 = Release|Any CPU
+		{F61D8C9E-5DD7-4F0F-BA43-37058FBA0ACA}.Debug|x64.ActiveCfg = Debug|x64
+		{F61D8C9E-5DD7-4F0F-BA43-37058FBA0ACA}.Debug|x64.Build.0 = Debug|x64
+		{F61D8C9E-5DD7-4F0F-BA43-37058FBA0ACA}.Release|x64.ActiveCfg = Release|x64
+		{F61D8C9E-5DD7-4F0F-BA43-37058FBA0ACA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
