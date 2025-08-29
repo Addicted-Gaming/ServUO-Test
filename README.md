@@ -52,5 +52,3 @@ dotnet tool restore
 dotnet format
 dotnet test
 ```
-
-A GitHub Actions workflow will verify formatting and execute the unit tests on each pull request.
