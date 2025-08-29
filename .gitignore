@@ -9,6 +9,8 @@
 /Scripts.dll
 /Scripts/bin
 /Scripts/obj
+/Server.Tests/bin
+/Server.Tests/obj
 /Scripts/Output
 
 /Honesty
@@ -25,9 +27,9 @@
 /staffHistory.xml
 /reportHistory.xml
 /firewall.cfg
-/drng64.dll
-/drng32.dll
-/libdrng.so
+drng64.dll
+drng32.dll
+libdrng.so
 
 *.pdb
 *.exe
@@ -43,3 +45,4 @@
 
 !/Data/*
 !/bin/rosyln/*
+
