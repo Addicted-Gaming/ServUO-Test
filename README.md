@@ -42,3 +42,13 @@ Run `_makerelease` for production environment.
 
 
     [ServUO]: <https://www.servuo.com>
+
+### Contributing
+
+To ensure consistent builds and formatting, restore local tools and run the following commands before committing:
+
+```
+dotnet tool restore
+dotnet format
+dotnet test
+```
