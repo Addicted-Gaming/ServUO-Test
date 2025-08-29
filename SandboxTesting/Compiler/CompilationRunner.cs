@@ -11,14 +11,16 @@ namespace SandboxTesting.Compiler
         {
             var logBuilder = new StringBuilder();
             var writer = new StringWriter(logBuilder);
+
             var originalOut = Console.Out;
             var originalErr = Console.Error;
 
             Console.SetOut(writer);
             Console.SetError(writer);
 
-            var watch = Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
             bool success;
+
             try
             {
                 success = Server.ScriptCompiler.Compile(debug, cache);
@@ -30,7 +32,7 @@ namespace SandboxTesting.Compiler
             }
             finally
             {
-                watch.Stop();
+                stopwatch.Stop();
                 Console.SetOut(originalOut);
                 Console.SetError(originalErr);
                 writer.Dispose();
@@ -45,7 +47,7 @@ namespace SandboxTesting.Compiler
             {
                 Success = success,
                 Errors = errors,
-                Duration = watch.Elapsed,
+                Duration = stopwatch.Elapsed,
                 Log = log
             };
         }
