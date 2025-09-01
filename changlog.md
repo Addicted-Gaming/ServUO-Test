@@ -5,3 +5,4 @@
 - add changlog.md
 - add tasks.md
 - add tasks from ServUOMissingFeatureList.md
+- add Server.Tests project

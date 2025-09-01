@@ -26,6 +26,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scripts", "Scripts\Scripts.
 		{AE4A9EAA-E0EB-4DC9-9604-BE4289F9F6C3} = {AE4A9EAA-E0EB-4DC9-9604-BE4289F9F6C3}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{75273E03-9AAB-4F69-9811-A3369ADE40E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "Tests\Server.Tests\Server.Tests.csproj", "{DA6BB3E8-1E9D-4255-8750-D0DD9AB81790}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -44,11 +48,18 @@ Global
 		{308EA7C6-2873-4E47-AF3F-ABBA3F8AB63E}.Debug|x64.Build.0 = Debug|x64
 		{308EA7C6-2873-4E47-AF3F-ABBA3F8AB63E}.Release|x64.ActiveCfg = Release|x64
 		{308EA7C6-2873-4E47-AF3F-ABBA3F8AB63E}.Release|x64.Build.0 = Release|x64
+		{DA6BB3E8-1E9D-4255-8750-D0DD9AB81790}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DA6BB3E8-1E9D-4255-8750-D0DD9AB81790}.Debug|x64.Build.0 = Debug|Any CPU
+		{DA6BB3E8-1E9D-4255-8750-D0DD9AB81790}.Release|x64.ActiveCfg = Release|Any CPU
+		{DA6BB3E8-1E9D-4255-8750-D0DD9AB81790}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {623D757F-7CDF-45C6-BC1D-1EF4B3995D5E}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA6BB3E8-1E9D-4255-8750-D0DD9AB81790} = {75273E03-9AAB-4F69-9811-A3369ADE40E8}
 	EndGlobalSection
 EndGlobal
