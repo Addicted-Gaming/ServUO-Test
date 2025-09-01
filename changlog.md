@@ -10,3 +10,4 @@
 - add Insensitive string helper tests
 - add Timer scheduling tests
 - add Timer priority change tests
+- add Timer start/stop tests

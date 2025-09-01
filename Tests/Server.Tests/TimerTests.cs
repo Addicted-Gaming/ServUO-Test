@@ -107,4 +107,44 @@ public class TimerTests
         ProcessTimers(100);
         Assert.GreaterOrEqual(timer.Count, 2);
     }
+
+    [Test]
+    public void Stop_HaltsSubsequentTicks()
+    {
+        var timer = new DummyTimer(TimeSpan.Zero, TimeSpan.FromMilliseconds(10));
+        timer.Start();
+
+        ProcessTimers(50);
+
+        timer.Stop();
+
+        ProcessTimers(20);
+        var countAfterStop = timer.Count;
+
+        ProcessTimers(100);
+
+        Assert.That(timer.Count, Is.EqualTo(countAfterStop));
+    }
+
+    [Test]
+    public void Start_RestartsStoppedTimer()
+    {
+        var timer = new DummyTimer(TimeSpan.Zero, TimeSpan.FromMilliseconds(10));
+        timer.Start();
+
+        ProcessTimers(50);
+
+        timer.Stop();
+
+        ProcessTimers(20);
+        var count = timer.Count;
+
+        ProcessTimers(50);
+        Assert.That(timer.Count, Is.EqualTo(count));
+
+        timer.Start();
+
+        ProcessTimers(50);
+        Assert.Greater(timer.Count, count);
+    }
 }
