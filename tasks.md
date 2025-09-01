@@ -1,5 +1,11 @@
-- [ ] set up test suite
+- [x] set up test suite
+- [x] write unit tests for core server functionality
+- [x] expand test coverage for additional server modules
+- [x] add tests for Timer scheduling
 - [ ] review existing documentation
+- [x] add tests for Timer priority changes
+- [x] add tests for Timer start/stop behavior
+- [ ] resolve missing testhost for dotnet test
 - [ ] implement Publish 112 updates (veteran rewards, Royal Taste Tester armor, misc improvements)
 - [ ] integrate Publish 114 seasonal content (Jack o' Lantern styles, Trick or Treat drops, Huntmaster's Challenge)
 - [ ] implement Publish 117 high seas & Shrouded Sails event content
