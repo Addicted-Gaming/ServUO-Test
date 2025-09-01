@@ -50,6 +50,61 @@ public class TimerTests
 
         ProcessTimers(200);
 
-        Assert.AreEqual(3, count);
+        Assert.That(count, Is.EqualTo(3));
+    }
+
+    private sealed class DummyTimer : Timer
+    {
+        public int Count;
+
+        public DummyTimer(TimeSpan delay, TimeSpan interval)
+            : base(delay, interval)
+        {
+        }
+
+        protected override void OnTick()
+        {
+            Interlocked.Increment(ref Count);
+        }
+    }
+
+    [Test]
+    public void PriorityChange_ToSlower_DelaysExecution()
+    {
+        var count = 0;
+        Timer timer = null!;
+        timer = Timer.DelayCall(TimeSpan.FromMilliseconds(10), TimeSpan.FromMilliseconds(10), () =>
+        {
+            Interlocked.Increment(ref count);
+            if (count == 1)
+            {
+                timer.Priority = TimerPriority.OneSecond;
+            }
+        });
+
+        ProcessTimers(500);
+        Assert.That(count, Is.EqualTo(1), "Timer should not tick again before priority delay");
+
+        ProcessTimers(1000);
+        Assert.That(count, Is.EqualTo(2), "Timer did not tick after priority delay elapsed");
+    }
+
+    [Test]
+    public void PriorityChange_ToFaster_SpeedsExecution()
+    {
+        var timer = new DummyTimer(TimeSpan.Zero, TimeSpan.FromMilliseconds(10))
+        {
+            Priority = TimerPriority.OneSecond
+        };
+
+        timer.Start();
+
+        ProcessTimers(1200);
+        Assert.That(timer.Count, Is.EqualTo(1));
+
+        timer.Priority = TimerPriority.TenMS;
+
+        ProcessTimers(100);
+        Assert.GreaterOrEqual(timer.Count, 2);
     }
 }

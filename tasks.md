@@ -3,7 +3,8 @@
 - [x] expand test coverage for additional server modules
 - [x] add tests for Timer scheduling
 - [ ] review existing documentation
-- [ ] add tests for Timer priority changes
+- [x] add tests for Timer priority changes
+- [ ] add tests for Timer start/stop behavior
 - [ ] implement Publish 112 updates (veteran rewards, Royal Taste Tester armor, misc improvements)
 - [ ] integrate Publish 114 seasonal content (Jack o' Lantern styles, Trick or Treat drops, Huntmaster's Challenge)
 - [ ] implement Publish 117 high seas & Shrouded Sails event content

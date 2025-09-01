@@ -9,3 +9,4 @@
 - add Utility.InRange tests
 - add Insensitive string helper tests
 - add Timer scheduling tests
+- add Timer priority change tests
