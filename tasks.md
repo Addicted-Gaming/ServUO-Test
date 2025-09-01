@@ -11,4 +11,5 @@
 - [ ] implement Publish 117 high seas & Shrouded Sails event content
 - [ ] implement Publish 118 Treasures of the Shattered Sanctum and Huntmaster's Challenge quarry
 - [ ] add Publish 119 Eclipsed Dawn champion spawn and Arcane Outfitter system
-- [ ] automate testhost installation in CI
+- [x] automate testhost installation in CI
+- [ ] monitor testhost package for updates
