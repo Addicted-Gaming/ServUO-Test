@@ -1,2 +1,7 @@
 - [ ] set up test suite
 - [ ] review existing documentation
+- [ ] implement Publish 112 updates (veteran rewards, Royal Taste Tester armor, misc improvements)
+- [ ] integrate Publish 114 seasonal content (Jack o' Lantern styles, Trick or Treat drops, Huntmaster's Challenge)
+- [ ] implement Publish 117 high seas & Shrouded Sails event content
+- [ ] implement Publish 118 Treasures of the Shattered Sanctum and Huntmaster's Challenge quarry
+- [ ] add Publish 119 Eclipsed Dawn champion spawn and Arcane Outfitter system
