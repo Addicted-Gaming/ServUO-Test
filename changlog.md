@@ -7,3 +7,4 @@
 - add tasks from ServUOMissingFeatureList.md
 - add Server.Tests project
 - add Utility.InRange tests
+- add Insensitive string helper tests
