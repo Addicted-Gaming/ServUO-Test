@@ -1,5 +1,6 @@
 - [x] set up test suite
-- [ ] write unit tests for core server functionality
+- [x] write unit tests for core server functionality
+- [ ] expand test coverage for additional server modules
 - [ ] review existing documentation
 - [ ] implement Publish 112 updates (veteran rewards, Royal Taste Tester armor, misc improvements)
 - [ ] integrate Publish 114 seasonal content (Jack o' Lantern styles, Trick or Treat drops, Huntmaster's Challenge)
