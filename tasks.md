@@ -5,9 +5,10 @@
 - [ ] review existing documentation
 - [x] add tests for Timer priority changes
 - [x] add tests for Timer start/stop behavior
-- [ ] resolve missing testhost for dotnet test
+- [x] resolve missing testhost for dotnet test
 - [ ] implement Publish 112 updates (veteran rewards, Royal Taste Tester armor, misc improvements)
 - [ ] integrate Publish 114 seasonal content (Jack o' Lantern styles, Trick or Treat drops, Huntmaster's Challenge)
 - [ ] implement Publish 117 high seas & Shrouded Sails event content
 - [ ] implement Publish 118 Treasures of the Shattered Sanctum and Huntmaster's Challenge quarry
 - [ ] add Publish 119 Eclipsed Dawn champion spawn and Arcane Outfitter system
+- [ ] automate testhost installation in CI
