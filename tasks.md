@@ -13,3 +13,5 @@
 - [ ] add Publish 119 Eclipsed Dawn champion spawn and Arcane Outfitter system
 - [x] automate testhost installation in CI
 - [ ] monitor testhost package for updates
+- [x] add edge-case configuration parsing tests
+- [ ] add array and enum configuration parsing tests
