@@ -14,3 +14,4 @@
 - add install-testhost.sh for running net48 tests on Linux
 - update Server.Tests to use Mono runtime and latest test SDK
 - automate testhost installation in CI
+- add config parsing tests
